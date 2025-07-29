@@ -157,4 +157,165 @@ describe('Frontend Calendar Tests', () => {
             expect(indexHtmlContent).toContain('.category_appointment');
         });
     });
+
+    describe('Events Sidebar', () => {
+        it('should have main container with flex layout', () => {
+            expect(indexHtmlContent).toContain('class="main-container"');
+            expect(indexHtmlContent).toContain('display: flex');
+            expect(indexHtmlContent).toContain('height: 100vh');
+        });
+
+        it('should have events sidebar structure', () => {
+            expect(indexHtmlContent).toContain('class="events-sidebar"');
+            expect(indexHtmlContent).toContain('width: 300px');
+            expect(indexHtmlContent).toContain('overflow-y: auto');
+        });
+
+        it('should have sidebar header', () => {
+            expect(indexHtmlContent).toContain('class="sidebar-header"');
+            expect(indexHtmlContent).toContain('📅 Events by Tags');
+        });
+
+        it('should have view period info section', () => {
+            expect(indexHtmlContent).toContain('class="view-period-info"');
+            expect(indexHtmlContent).toContain('id="viewPeriodInfo"');
+            expect(indexHtmlContent).toContain('Current View: Month');
+        });
+
+        it('should have events accordion container', () => {
+            expect(indexHtmlContent).toContain('id="eventsAccordion"');
+            expect(indexHtmlContent).toContain('Accordion content will be populated by JavaScript');
+        });
+
+        it('should have calendar section structure', () => {
+            expect(indexHtmlContent).toContain('class="calendar-section"');
+            expect(indexHtmlContent).toContain('flex: 1');
+            expect(indexHtmlContent).toContain('flex-direction: column');
+        });
+    });
+
+    describe('Accordion Functionality', () => {
+        it('should have accordion styling classes', () => {
+            expect(indexHtmlContent).toContain('.accordion-item');
+            expect(indexHtmlContent).toContain('.accordion-header');
+            expect(indexHtmlContent).toContain('.accordion-content');
+            expect(indexHtmlContent).toContain('.accordion-arrow');
+        });
+
+        it('should have accordion JavaScript functions', () => {
+            expect(indexHtmlContent).toContain('function toggleAccordion');
+            expect(indexHtmlContent).toContain('function updateEventsSidebar');
+            expect(indexHtmlContent).toContain('function groupEventsByTags');
+        });
+
+        it('should have event filtering by view period', () => {
+            expect(indexHtmlContent).toContain('function getFilteredEvents');
+            expect(indexHtmlContent).toContain('currentView');
+            expect(indexHtmlContent).toContain('currentDate');
+        });
+
+        it('should have tag count badges styling', () => {
+            expect(indexHtmlContent).toContain('.tag-count');
+            expect(indexHtmlContent).toContain('border-radius: 12px');
+            expect(indexHtmlContent).toContain('background: #6c757d');
+        });
+    });
+
+    describe('Event Item Styling', () => {
+        it('should have event item classes', () => {
+            expect(indexHtmlContent).toContain('.event-item');
+            expect(indexHtmlContent).toContain('.event-title');
+            expect(indexHtmlContent).toContain('.event-time');
+            expect(indexHtmlContent).toContain('.event-location');
+            expect(indexHtmlContent).toContain('.event-priority');
+        });
+
+        it('should have priority badge styling', () => {
+            expect(indexHtmlContent).toContain('.priority-urgent');
+            expect(indexHtmlContent).toContain('.priority-high');
+            expect(indexHtmlContent).toContain('.priority-medium');
+            expect(indexHtmlContent).toContain('.priority-low');
+        });
+
+        it('should have hover effects for event items', () => {
+            expect(indexHtmlContent).toContain('.event-item:hover');
+            expect(indexHtmlContent).toContain('background: #f8f9fa');
+        });
+    });
+
+    describe('Responsive Design', () => {
+        it('should have tablet responsive design', () => {
+            expect(indexHtmlContent).toContain('@media (max-width: 768px)');
+            expect(indexHtmlContent).toContain('width: 250px');
+        });
+
+        it('should have mobile responsive design', () => {
+            expect(indexHtmlContent).toContain('@media (max-width: 576px)');
+            expect(indexHtmlContent).toContain('flex-direction: column');
+        });
+
+        it('should stack sidebar below calendar on mobile', () => {
+            expect(indexHtmlContent).toContain('order: 2');
+            expect(indexHtmlContent).toContain('order: 1');
+            expect(indexHtmlContent).toContain('height: 200px');
+        });
+
+        it('should adjust calendar height on mobile', () => {
+            expect(indexHtmlContent).toContain('height: calc(100vh - 200px)');
+        });
+    });
+
+    describe('Event Management Functions', () => {
+        it('should have view period update function', () => {
+            expect(indexHtmlContent).toContain('function updateViewPeriodInfo');
+            expect(indexHtmlContent).toContain('viewInfo.textContent = periodText');
+        });
+
+        it('should have event time formatting function', () => {
+            expect(indexHtmlContent).toContain('function formatEventTime');
+            expect(indexHtmlContent).toContain('toLocaleTimeString');
+            expect(indexHtmlContent).toContain('toLocaleDateString');
+        });
+
+        it('should have event selection function', () => {
+            expect(indexHtmlContent).toContain('function selectEvent');
+            expect(indexHtmlContent).toContain('scheduler.setCurrentView');
+            expect(indexHtmlContent).toContain('scheduler.showEvent');
+        });
+
+        it('should have event listeners for view changes', () => {
+            expect(indexHtmlContent).toContain('onViewChange');
+            expect(indexHtmlContent).toContain('onAfterViewLoad');
+            expect(indexHtmlContent).toContain('updateEventsSidebar()');
+        });
+    });
+
+    describe('Enhanced Event Display', () => {
+        it('should include year view in tabs', () => {
+            expect(indexHtmlContent).toContain('name="year_tab"');
+        });
+
+        it('should enable year view plugin', () => {
+            expect(indexHtmlContent).toContain('year_view: true');
+        });
+
+        it('should handle different view modes in filtering', () => {
+            expect(indexHtmlContent).toContain('case \'day\'');
+            expect(indexHtmlContent).toContain('case \'week\'');
+            expect(indexHtmlContent).toContain('case \'month\'');
+            expect(indexHtmlContent).toContain('case \'year\'');
+        });
+
+        it('should display priority emojis correctly', () => {
+            expect(indexHtmlContent).toContain('priorityEmoji');
+            expect(indexHtmlContent).toContain('🔸');
+            expect(indexHtmlContent).toContain('🔶');
+            expect(indexHtmlContent).toContain('🔴');
+        });
+
+        it('should display location and tags with icons', () => {
+            expect(indexHtmlContent).toContain('📍');
+            expect(indexHtmlContent).toContain('🏷️');
+        });
+    });
 }); 

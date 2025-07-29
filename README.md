@@ -4,14 +4,18 @@ A modern calendar application built with Node.js, Express, MongoDB, and dhtmlxSc
 
 ## 🌟 Features
 
-- **Full Calendar Interface**: Month, week, and day views with intuitive navigation
+- **Full Calendar Interface**: Month, week, day, and year views with intuitive navigation
+- **Events Sidebar**: Organized event listing with tag-based accordion grouping
+- **Enhanced Event Fields**: Location, priority, tags, attendees, and category support
+- **Smart Filtering**: Events filtered by current view period (day/week/month/year)
 - **CRUD Operations**: Create, read, update, and delete events
-- **Modern UI**: Clean, responsive design with Material Design styling
+- **Modern Responsive UI**: Clean design that adapts to desktop and mobile
 - **Real-time Updates**: Events are automatically saved to the backend
 - **MongoDB Integration**: Persistent data storage with fallback to mock data
 - **Comprehensive Testing**: Complete test suite with Jest
 - **Drag & Drop**: Intuitive event modification through dragging
 - **Double-click Creation**: Easy event creation by double-clicking
+- **Priority & Category Styling**: Visual event differentiation based on priority and category
 
 ## 🚀 Quick Start
 
@@ -42,10 +46,29 @@ A modern calendar application built with Node.js, Express, MongoDB, and dhtmlxSc
 
 ## 📱 Usage
 
+### Events Sidebar
+- **Tag-based Organization**: Events are automatically grouped by their tags in an accordion interface
+- **View Period Filtering**: Only events in the current view period (day/week/month/year) are shown
+- **Quick Navigation**: Click any event in the sidebar to jump to its date on the calendar
+- **Event Count Badges**: See how many events are in each tag group
+- **Responsive Design**: Sidebar adapts to mobile devices (stacks below calendar on small screens)
+
 ### Creating Events
 - **Double-click** on any date/time to create a new event
-- Fill in the event details in the popup form
+- Fill in the comprehensive event form with:
+  - **Description**: Main event text
+  - **Location**: Where the event takes place (displays with 📍 icon)
+  - **Priority**: Low/Medium/High/Urgent (affects visual styling and displays with colored badges)
+  - **Tags**: Comma-separated tags for organization (used in sidebar grouping)
+  - **Attendees**: People attending the event
+  - **Category**: Meeting/Task/Event/Reminder/Appointment (affects visual styling)
 - Click "Save" to add the event
+
+### Enhanced Event Display
+- **Priority Indicators**: Events show priority badges (🔸 Medium, 🔶 High, 🔴 Urgent)
+- **Location Display**: Events show location with 📍 icon
+- **Tag Display**: Events show tags with 🏷️ icon
+- **Color Coding**: Events are styled based on priority and category
 
 ### Modifying Events
 - **Click** on an event to edit its details
@@ -55,12 +78,14 @@ A modern calendar application built with Node.js, Express, MongoDB, and dhtmlxSc
 ### Navigation
 - Use **arrow buttons** to navigate between months/weeks/days
 - Click **Today** to return to the current date
-- Switch between **Month**, **Week**, and **Day** views using the tabs
+- Switch between **Month**, **Week**, **Day**, and **Year** views using the tabs
+- **Year View**: Click calendar icon to quickly jump to any year
 
 ### Viewing Events
 - **Month view**: Shows all events for the month
 - **Week view**: Detailed week layout with time slots
 - **Day view**: Hour-by-hour breakdown of a single day
+- **Year view**: Annual overview for long-term planning
 
 ## 🛠 Development
 
@@ -98,17 +123,23 @@ calendar/
 
 The application includes comprehensive test coverage:
 
-**Backend Tests (13 tests):**
+**Backend Tests (15 tests):**
 - API endpoint functionality
-- CRUD operations
+- CRUD operations with enhanced event fields
 - Error handling
 - Static file serving
 
-**Frontend Tests (15 tests):**
+**Frontend Tests (49 tests):**
 - HTML structure validation
-- JavaScript configuration
-- CSS styling verification
+- Events sidebar and accordion functionality  
+- JavaScript configuration for enhanced fields
+- CSS styling verification including responsive design
 - User experience features
+- Tag-based organization and filtering
+- Priority and category styling
+- Mobile layout adaptation
+
+**Total: 64 tests**
 
 Run tests with:
 ```bash
@@ -123,9 +154,10 @@ npm test
 - **Body-parser**: Middleware for parsing request bodies
 
 ### Frontend Technologies
-- **dhtmlxScheduler**: Professional JavaScript calendar component
-- **Material Design**: Modern, clean styling
-- **Responsive CSS**: Mobile-friendly layout
+- **dhtmlxScheduler**: Professional JavaScript calendar component with year view
+- **Event Sidebar**: Custom accordion-based event organization by tags
+- **Responsive Design**: Mobile-first CSS with flexbox layout
+- **Enhanced UI**: Priority and category-based visual styling
 
 ### Data Flow
 
@@ -146,9 +178,30 @@ Events are stored with the following structure:
   text: String,            // Event title/description
   start_date: Date,        // Event start time
   end_date: Date,          // Event end time
-  color: String (optional) // Event color (hex code)
+  location: String,        // Event location (optional)
+  priority: String,        // Priority level: "low", "medium", "high", "urgent" (optional)
+  tags: String,            // Comma-separated tags for organization (optional)
+  attendees: String,       // Event attendees (optional)
+  category: String,        // Category: "meeting", "task", "event", "reminder", "appointment" (optional)
+  color: String            // Event color (hex code, optional)
 }
 ```
+
+### Enhanced Field Details
+
+- **location**: Displayed with 📍 icon in event view
+- **priority**: Affects visual styling and sidebar badges
+  - `low`: Default styling
+  - `medium`: Yellow badge (🔸)
+  - `high`: Orange badge (🔶) 
+  - `urgent`: Red badge (🔴) with bold styling
+- **tags**: Used for sidebar organization and grouping
+- **category**: Affects event color coding
+  - `meeting`: Blue styling
+  - `task`: Green styling  
+  - `reminder`: Yellow styling
+  - `appointment`: Purple styling
+  - `event`: Default styling
 
 ## 🔧 Configuration
 
