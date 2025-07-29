@@ -16,6 +16,25 @@
             font-family: Arial, sans-serif;
         }
         
+        .main-container {
+            display: flex;
+            height: 100vh;
+        }
+        
+        .events-sidebar {
+            width: 300px;
+            background: #f8f9fa;
+            border-right: 1px solid #dee2e6;
+            overflow-y: auto;
+            flex-shrink: 0;
+        }
+        
+        .calendar-section {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+        
         .dhx_cal_container {
             border: 1px solid #cecece;
         }
@@ -29,9 +48,127 @@
             color: #666;
         }
         
+        .sidebar-header {
+            background: #343a40;
+            color: white;
+            padding: 15px;
+            font-weight: bold;
+            font-size: 16px;
+            text-align: center;
+        }
+        
+        .view-period-info {
+            background: #e9ecef;
+            padding: 10px;
+            text-align: center;
+            font-size: 14px;
+            color: #495057;
+            border-bottom: 1px solid #dee2e6;
+        }
+        
         #calendar-container {
             height: calc(100vh - 40px);
             margin-top: 40px;
+        }
+        
+        /* Accordion Styles */
+        .accordion-item {
+            border-bottom: 1px solid #dee2e6;
+        }
+        
+        .accordion-header {
+            background: #e9ecef;
+            padding: 12px 15px;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-weight: 500;
+            color: #495057;
+            transition: background-color 0.2s;
+        }
+        
+        .accordion-header:hover {
+            background: #dee2e6;
+        }
+        
+        .accordion-header.active {
+            background: #6c757d;
+            color: white;
+        }
+        
+        .accordion-arrow {
+            transition: transform 0.2s;
+            font-size: 12px;
+        }
+        
+        .accordion-header.active .accordion-arrow {
+            transform: rotate(90deg);
+        }
+        
+        .accordion-content {
+            display: none;
+            background: white;
+        }
+        
+        .accordion-content.show {
+            display: block;
+        }
+        
+        .event-item {
+            padding: 10px 15px;
+            border-bottom: 1px solid #f1f3f4;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        
+        .event-item:hover {
+            background: #f8f9fa;
+        }
+        
+        .event-item:last-child {
+            border-bottom: none;
+        }
+        
+        .event-title {
+            font-weight: 500;
+            margin-bottom: 4px;
+            color: #212529;
+        }
+        
+        .event-time {
+            font-size: 12px;
+            color: #6c757d;
+            margin-bottom: 4px;
+        }
+        
+        .event-location {
+            font-size: 12px;
+            color: #495057;
+            margin-bottom: 2px;
+        }
+        
+        .event-priority {
+            font-size: 11px;
+            padding: 2px 6px;
+            border-radius: 10px;
+            color: white;
+            display: inline-block;
+        }
+        
+        .priority-urgent { background: #dc3545; }
+        .priority-high { background: #fd7e14; }
+        .priority-medium { background: #ffc107; color: #212529; }
+        .priority-low { background: #6c757d; }
+        
+        .tag-count {
+            background: #6c757d;
+            color: white;
+            border-radius: 12px;
+            padding: 2px 8px;
+            font-size: 11px;
+            min-width: 16px;
+            text-align: center;
         }
         
         /* Priority-based event styling */
@@ -78,32 +215,77 @@
             background-color: #ffccff !important;
             border-left: 4px solid #cc00cc !important;
         }
+        
+        /* Responsive design */
+        @media (max-width: 768px) {
+            .events-sidebar {
+                width: 250px;
+            }
+        }
+        
+        @media (max-width: 576px) {
+            .main-container {
+                flex-direction: column;
+            }
+            .events-sidebar {
+                width: 100%;
+                height: 200px;
+                order: 2;
+            }
+            .calendar-section {
+                order: 1;
+                height: calc(100vh - 200px);
+            }
+        }
     </style>
 </head>
 
 <body onload="init();">
-    <div class="header-info">
-        Node.js Calendar with dhtmlxScheduler - Click to add events, drag to modify | Click calendar icon to jump to any year
-    </div>
-    
-    <div id="calendar-container">
-        <div id="scheduler_here" class="dhx_cal_container" style='width:100%; height:100%;'>
-            <div class="dhx_cal_navline">
-                <div class="dhx_cal_prev_button">&nbsp;</div>
-                <div class="dhx_cal_next_button">&nbsp;</div>
-                <div class="dhx_cal_today_button"></div>
-                <div class="dhx_cal_date"></div>
-                <div class="dhx_cal_tab" name="day_tab"></div>
-                <div class="dhx_cal_tab" name="week_tab"></div>
-                <div class="dhx_cal_tab" name="month_tab"></div>
-                <div class="dhx_cal_tab" name="year_tab"></div>
+    <div class="main-container">
+        <!-- Events Sidebar -->
+        <div class="events-sidebar">
+            <div class="sidebar-header">
+                📅 Events by Tags
             </div>
-            <div class="dhx_cal_header"></div>
-            <div class="dhx_cal_data"></div>
+            <div class="view-period-info" id="viewPeriodInfo">
+                Current View: Month
+            </div>
+            <div id="eventsAccordion">
+                <!-- Accordion content will be populated by JavaScript -->
+            </div>
+        </div>
+        
+        <!-- Calendar Section -->
+        <div class="calendar-section">
+            <div class="header-info">
+                Node.js Calendar with dhtmlxScheduler - Click to add events, drag to modify | Click calendar icon to jump to any year
+            </div>
+            
+            <div id="calendar-container">
+                <div id="scheduler_here" class="dhx_cal_container" style='width:100%; height:100%;'>
+                    <div class="dhx_cal_navline">
+                        <div class="dhx_cal_prev_button">&nbsp;</div>
+                        <div class="dhx_cal_next_button">&nbsp;</div>
+                        <div class="dhx_cal_today_button"></div>
+                        <div class="dhx_cal_date"></div>
+                        <div class="dhx_cal_tab" name="day_tab"></div>
+                        <div class="dhx_cal_tab" name="week_tab"></div>
+                        <div class="dhx_cal_tab" name="month_tab"></div>
+                        <div class="dhx_cal_tab" name="year_tab"></div>
+                    </div>
+                    <div class="dhx_cal_header"></div>
+                    <div class="dhx_cal_data"></div>
+                </div>
+            </div>
         </div>
     </div>
 
     <script type="text/javascript" charset="utf-8">
+        // Global variables for event management
+        let allEvents = [];
+        let currentView = 'month';
+        let currentDate = new Date();
+        
         function init() {
             // Enable mini calendar extension
             scheduler.plugins({
@@ -197,14 +379,58 @@
             
             // Initialize the scheduler with current date for better visibility
             const today = new Date();
+            currentDate = today;
             scheduler.init('scheduler_here', today, "month");
             
             // Enable creation of new events by double click
             scheduler.config.details_on_create = true;
             scheduler.config.details_on_dblclick = true;
             
+            // Add event listeners for view changes
+            scheduler.attachEvent("onViewChange", function(new_mode, new_date) {
+                currentView = new_mode;
+                currentDate = new Date(new_date);
+                updateViewPeriodInfo();
+                updateEventsSidebar();
+                return true;
+            });
+            
+            // Add event listener for date changes
+            scheduler.attachEvent("onAfterViewLoad", function() {
+                currentDate = new Date(scheduler.getState().date);
+                updateViewPeriodInfo();
+                updateEventsSidebar();
+                return true;
+            });
+            
             // Load data from the server
             scheduler.load("/data", "json");
+            
+            // Update events when data is loaded
+            scheduler.attachEvent("onXLE", function() {
+                allEvents = scheduler.getEvents();
+                updateEventsSidebar();
+                return true;
+            });
+            
+            // Update events when events are modified
+            scheduler.attachEvent("onEventChanged", function(id, ev) {
+                allEvents = scheduler.getEvents();
+                updateEventsSidebar();
+                return true;
+            });
+            
+            scheduler.attachEvent("onEventAdded", function(id, ev) {
+                allEvents = scheduler.getEvents();
+                updateEventsSidebar();
+                return true;
+            });
+            
+            scheduler.attachEvent("onEventDeleted", function(id, ev) {
+                allEvents = scheduler.getEvents();
+                updateEventsSidebar();
+                return true;
+            });
             
             // Modern way to handle data processing in dhtmlxScheduler
             scheduler.createDataProcessor({
@@ -221,6 +447,258 @@
             
             console.log("Calendar initialized successfully");
         }
+        
+        function updateViewPeriodInfo() {
+            const viewInfo = document.getElementById('viewPeriodInfo');
+            let periodText = '';
+            
+            const options = { 
+                year: 'numeric', 
+                month: 'long', 
+                day: 'numeric'
+            };
+            
+            switch(currentView) {
+                case 'day':
+                    periodText = `Day: ${currentDate.toLocaleDateString('en-US', options)}`;
+                    break;
+                case 'week':
+                    const startOfWeek = new Date(currentDate);
+                    startOfWeek.setDate(currentDate.getDate() - currentDate.getDay());
+                    const endOfWeek = new Date(startOfWeek);
+                    endOfWeek.setDate(startOfWeek.getDate() + 6);
+                    periodText = `Week: ${startOfWeek.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })} - ${endOfWeek.toLocaleDateString('en-US', options)}`;
+                    break;
+                case 'month':
+                    periodText = `Month: ${currentDate.toLocaleDateString('en-US', { year: 'numeric', month: 'long' })}`;
+                    break;
+                case 'year':
+                    periodText = `Year: ${currentDate.getFullYear()}`;
+                    break;
+                default:
+                    periodText = `Current View: ${currentView}`;
+            }
+            
+            viewInfo.textContent = periodText;
+        }
+        
+        function getFilteredEvents() {
+            if (!allEvents || allEvents.length === 0) return [];
+            
+            return allEvents.filter(event => {
+                const eventStart = new Date(event.start_date);
+                const eventEnd = new Date(event.end_date);
+                
+                switch(currentView) {
+                    case 'day':
+                        const targetDay = new Date(currentDate);
+                        targetDay.setHours(0, 0, 0, 0);
+                        const nextDay = new Date(targetDay);
+                        nextDay.setDate(targetDay.getDate() + 1);
+                        return eventStart < nextDay && eventEnd >= targetDay;
+                        
+                    case 'week':
+                        const startOfWeek = new Date(currentDate);
+                        startOfWeek.setDate(currentDate.getDate() - currentDate.getDay());
+                        startOfWeek.setHours(0, 0, 0, 0);
+                        const endOfWeek = new Date(startOfWeek);
+                        endOfWeek.setDate(startOfWeek.getDate() + 7);
+                        return eventStart < endOfWeek && eventEnd >= startOfWeek;
+                        
+                    case 'month':
+                        const startOfMonth = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1);
+                        const endOfMonth = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 0, 23, 59, 59);
+                        return eventStart <= endOfMonth && eventEnd >= startOfMonth;
+                        
+                    case 'year':
+                        const startOfYear = new Date(currentDate.getFullYear(), 0, 1);
+                        const endOfYear = new Date(currentDate.getFullYear(), 11, 31, 23, 59, 59);
+                        return eventStart <= endOfYear && eventEnd >= startOfYear;
+                        
+                    default:
+                        return true;
+                }
+            });
+        }
+        
+        function groupEventsByTags(events) {
+            const tagGroups = {};
+            
+            events.forEach(event => {
+                if (!event.tags) {
+                    // Add to "Untagged" group
+                    if (!tagGroups['Untagged']) {
+                        tagGroups['Untagged'] = [];
+                    }
+                    tagGroups['Untagged'].push(event);
+                } else {
+                    // Split tags by comma and trim whitespace
+                    const tags = event.tags.split(',').map(tag => tag.trim()).filter(tag => tag.length > 0);
+                    
+                    if (tags.length === 0) {
+                        if (!tagGroups['Untagged']) {
+                            tagGroups['Untagged'] = [];
+                        }
+                        tagGroups['Untagged'].push(event);
+                    } else {
+                        tags.forEach(tag => {
+                            if (!tagGroups[tag]) {
+                                tagGroups[tag] = [];
+                            }
+                            tagGroups[tag].push(event);
+                        });
+                    }
+                }
+            });
+            
+            return tagGroups;
+        }
+        
+        function formatEventTime(startDate, endDate) {
+            const start = new Date(startDate);
+            const end = new Date(endDate);
+            
+            const startTime = start.toLocaleTimeString('en-US', { 
+                hour: 'numeric', 
+                minute: '2-digit',
+                hour12: true 
+            });
+            const endTime = end.toLocaleTimeString('en-US', { 
+                hour: 'numeric', 
+                minute: '2-digit',
+                hour12: true 
+            });
+            
+            const startDateStr = start.toLocaleDateString('en-US', { 
+                month: 'short', 
+                day: 'numeric' 
+            });
+            
+            // Check if start and end are on the same day
+            if (start.toDateString() === end.toDateString()) {
+                return `${startDateStr}, ${startTime} - ${endTime}`;
+            } else {
+                const endDateStr = end.toLocaleDateString('en-US', { 
+                    month: 'short', 
+                    day: 'numeric' 
+                });
+                return `${startDateStr} ${startTime} - ${endDateStr} ${endTime}`;
+            }
+        }
+        
+        function updateEventsSidebar() {
+            const accordion = document.getElementById('eventsAccordion');
+            const filteredEvents = getFilteredEvents();
+            const tagGroups = groupEventsByTags(filteredEvents);
+            
+            // Clear existing content
+            accordion.innerHTML = '';
+            
+            if (Object.keys(tagGroups).length === 0) {
+                accordion.innerHTML = '<div style="padding: 20px; text-align: center; color: #6c757d;">No events in current view period</div>';
+                return;
+            }
+            
+            // Sort tags alphabetically, but put "Untagged" last
+            const sortedTags = Object.keys(tagGroups).sort((a, b) => {
+                if (a === 'Untagged') return 1;
+                if (b === 'Untagged') return -1;
+                return a.localeCompare(b);
+            });
+            
+            sortedTags.forEach(tag => {
+                const events = tagGroups[tag];
+                
+                // Create accordion item
+                const accordionItem = document.createElement('div');
+                accordionItem.className = 'accordion-item';
+                
+                // Create header
+                const header = document.createElement('div');
+                header.className = 'accordion-header';
+                header.innerHTML = `
+                    <span>${tag}</span>
+                    <div>
+                        <span class="tag-count">${events.length}</span>
+                        <span class="accordion-arrow">▶</span>
+                    </div>
+                `;
+                
+                // Create content
+                const content = document.createElement('div');
+                content.className = 'accordion-content';
+                
+                // Sort events by start date
+                events.sort((a, b) => new Date(a.start_date) - new Date(b.start_date));
+                
+                events.forEach(event => {
+                    const eventItem = document.createElement('div');
+                    eventItem.className = 'event-item';
+                    eventItem.onclick = () => selectEvent(event.id);
+                    
+                    let priorityBadge = '';
+                    if (event.priority && event.priority !== 'low') {
+                        priorityBadge = `<span class="event-priority priority-${event.priority}">${event.priority.toUpperCase()}</span>`;
+                    }
+                    
+                    let locationText = '';
+                    if (event.location) {
+                        locationText = `<div class="event-location">📍 ${event.location}</div>`;
+                    }
+                    
+                    eventItem.innerHTML = `
+                        <div class="event-title">${event.text}</div>
+                        <div class="event-time">${formatEventTime(event.start_date, event.end_date)}</div>
+                        ${locationText}
+                        ${priorityBadge}
+                    `;
+                    
+                    content.appendChild(eventItem);
+                });
+                
+                // Add click handler for accordion
+                header.onclick = () => toggleAccordion(header, content);
+                
+                accordionItem.appendChild(header);
+                accordionItem.appendChild(content);
+                accordion.appendChild(accordionItem);
+            });
+            
+            // Open first accordion by default
+            if (accordion.firstChild) {
+                const firstHeader = accordion.firstChild.querySelector('.accordion-header');
+                const firstContent = accordion.firstChild.querySelector('.accordion-content');
+                if (firstHeader && firstContent) {
+                    toggleAccordion(firstHeader, firstContent);
+                }
+            }
+        }
+        
+        function toggleAccordion(header, content) {
+            const isActive = header.classList.contains('active');
+            
+            if (isActive) {
+                header.classList.remove('active');
+                content.classList.remove('show');
+            } else {
+                header.classList.add('active');
+                content.classList.add('show');
+            }
+        }
+        
+        function selectEvent(eventId) {
+            const event = scheduler.getEvent(eventId);
+            if (event) {
+                // Navigate to the event's date and highlight it
+                scheduler.setCurrentView(new Date(event.start_date), currentView);
+                scheduler.showEvent(eventId);
+            }
+        }
+        
+        // Initialize view period info on load
+        document.addEventListener('DOMContentLoaded', function() {
+            updateViewPeriodInfo();
+        });
     </script>
 </body>
 </html> 
