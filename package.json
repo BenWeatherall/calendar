@@ -11,6 +11,9 @@
     "cleanup": "node scripts/cleanup.js",
     "test": "jest",
     "test:watch": "jest --watch",
+    "test:verbose": "jest --verbose",
+    "test:coverage": "jest --coverage",
+    "test:debug": "jest --verbose --forceExit",
     "restart": "npm run stop && npm start"
   },
   "dependencies": {
@@ -26,13 +29,17 @@
   },
   "jest": {
     "testEnvironment": "node",
+    "setupFilesAfterEnv": ["<rootDir>/jest.setup.js"],
     "coverageDirectory": "coverage",
     "collectCoverageFrom": [
       "**/*.js",
       "!node_modules/**",
       "!coverage/**",
-      "!public/**"
-    ]
+      "!public/**",
+      "!jest.setup.js"
+    ],
+    "testTimeout": 10000,
+    "forceExit": true
   },
   "keywords": ["calendar", "scheduler", "nodejs", "express", "mongodb"],
   "author": "",

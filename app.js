@@ -9,19 +9,32 @@ const dbName = "testdb";
 let db = null;
 let eventsCollection = null;
 let server = null;
+let mongoClient = null;
 
 // Connect to MongoDB
 async function connectToMongoDB() {
     try {
-        const client = new MongoClient(mongoUrl, { useUnifiedTopology: true });
-        await client.connect();
+        mongoClient = new MongoClient(mongoUrl, { useUnifiedTopology: true });
+        await mongoClient.connect();
         console.log("Connected to MongoDB");
-        db = client.db(dbName);
+        db = mongoClient.db(dbName);
         eventsCollection = db.collection('events');
     } catch (error) {
         console.error("MongoDB connection error:", error);
         // For development, we'll continue without MongoDB
         console.log("Continuing without MongoDB connection...");
+    }
+}
+
+// Close database connection
+async function closeDatabaseConnection() {
+    if (mongoClient) {
+        try {
+            await mongoClient.close();
+            console.log('MongoDB connection closed.');
+        } catch (error) {
+            console.error('Error closing MongoDB:', error);
+        }
     }
 }
 
@@ -47,30 +60,61 @@ app.get('/init', async function(req, res){
         // Clear existing data first
         await eventsCollection.deleteMany({});
         
-        // Insert test events
+        // Insert test events with additional fields (using current month dates)
+        const today = new Date();
+        const currentYear = today.getFullYear();
+        const currentMonth = today.getMonth();
+        
         await eventsCollection.insertMany([
             {   
-                text:"My test event A",   
-                start_date: new Date(2018,8,1),
-                end_date: new Date(2018,8,5)
+                text:"Project Planning Meeting",   
+                start_date: new Date(currentYear, currentMonth, 1, 9, 0),
+                end_date: new Date(currentYear, currentMonth, 1, 10, 30),
+                location: "Conference Room A",
+                priority: "high",
+                category: "meeting",
+                tags: "project, planning, strategy",
+                attendees: "John, Sarah, Mike"
             },
             {   
-                text:"One more test event",   
-                start_date: new Date(2018,8,3),
-                end_date: new Date(2018,8,8),
-                color: "#DD8616"
+                text:"Complete Budget Report",   
+                start_date: new Date(currentYear, currentMonth, 5, 10, 0),
+                end_date: new Date(currentYear, currentMonth, 7, 17, 0),
+                location: "Home Office",
+                priority: "urgent",
+                category: "task",
+                tags: "finance, deadline, quarterly",
+                attendees: "Finance Team"
             },
             {   
-                text:"Meeting with client",   
-                start_date: new Date(2018,8,10),
-                end_date: new Date(2018,8,11),
-                color: "#00AA00"
+                text:"Client Presentation",   
+                start_date: new Date(currentYear, currentMonth, 10, 14, 0),
+                end_date: new Date(currentYear, currentMonth, 10, 16, 0),
+                location: "Client Office - Downtown",
+                priority: "high",
+                category: "meeting",
+                tags: "presentation, sales, client",
+                attendees: "Sales Team, Client Stakeholders"
             },
             {   
-                text:"Weekly Review",   
-                start_date: new Date(2018,8,15),
-                end_date: new Date(2018,8,16),
-                color: "#0066FF"
+                text:"Team Building Event",   
+                start_date: new Date(currentYear, currentMonth, 15, 12, 0),
+                end_date: new Date(currentYear, currentMonth, 15, 17, 0),
+                location: "City Park",
+                priority: "medium",
+                category: "event",
+                tags: "team building, social, outdoor",
+                attendees: "All Staff"
+            },
+            {   
+                text:"Doctor Appointment",   
+                start_date: new Date(currentYear, currentMonth, 20, 15, 0),
+                end_date: new Date(currentYear, currentMonth, 20, 16, 0),
+                location: "Medical Center",
+                priority: "medium",
+                category: "appointment",
+                tags: "health, personal",
+                attendees: "Personal"
             }
         ]);
         
@@ -85,19 +129,43 @@ app.get('/init', async function(req, res){
 app.get('/data', async function(req, res){
     if (!eventsCollection) {
         // Return mock data if no database connection
+        const today = new Date();
+        const currentYear = today.getFullYear();
+        const currentMonth = String(today.getMonth() + 1).padStart(2, '0');
+        
         const mockData = [
             {
                 id: "1",
-                text: "Sample Event 1",
-                start_date: new Date(2018, 8, 1),
-                end_date: new Date(2018, 8, 2)
+                text: "Project Planning Meeting",
+                start_date: `${currentYear}-${currentMonth}-01 09:00`,
+                end_date: `${currentYear}-${currentMonth}-01 10:30`,
+                location: "Conference Room A",
+                priority: "high",
+                category: "meeting",
+                tags: "project, planning, strategy",
+                attendees: "John, Sarah, Mike"
             },
             {
                 id: "2", 
-                text: "Sample Event 2",
-                start_date: new Date(2018, 8, 5),
-                end_date: new Date(2018, 8, 6),
-                color: "#DD8616"
+                text: "Complete Budget Report",
+                start_date: `${currentYear}-${currentMonth}-05 10:00`,
+                end_date: `${currentYear}-${currentMonth}-07 17:00`,
+                location: "Home Office",
+                priority: "urgent",
+                category: "task",
+                tags: "finance, deadline, quarterly",
+                attendees: "Finance Team"
+            },
+            {
+                id: "3",
+                text: "Client Presentation",
+                start_date: `${currentYear}-${currentMonth}-10 14:00`,
+                end_date: `${currentYear}-${currentMonth}-10 16:00`,
+                location: "Client Office - Downtown",
+                priority: "high",
+                category: "meeting",
+                tags: "presentation, sales, client",
+                attendees: "Sales Team, Client Stakeholders"
             }
         ];
         res.send(mockData);
@@ -107,9 +175,17 @@ app.get('/data', async function(req, res){
     try {
         const data = await eventsCollection.find({}).toArray();
         
-        //set id property for all records
+        //set id property and format dates for all records
         for (var i = 0; i < data.length; i++) {
             data[i].id = data[i]._id.toString();
+            
+            // Format dates as strings for dhtmlxScheduler
+            if (data[i].start_date instanceof Date) {
+                data[i].start_date = data[i].start_date.toISOString().slice(0, 16).replace('T', ' ');
+            }
+            if (data[i].end_date instanceof Date) {
+                data[i].end_date = data[i].end_date.toISOString().slice(0, 16).replace('T', ' ');
+            }
         }
         
         //output response
@@ -138,6 +214,14 @@ app.post('/data', async function(req, res){
     //remove properties which we do not want to save in DB
     delete data.id;
     delete data["!nativeeditor_status"];
+    
+    // Convert date strings back to Date objects for MongoDB storage
+    if (data.start_date && typeof data.start_date === 'string') {
+        data.start_date = new Date(data.start_date.replace(' ', 'T'));
+    }
+    if (data.end_date && typeof data.end_date === 'string') {
+        data.end_date = new Date(data.end_date.replace(' ', 'T'));
+    }
     
     try {
         let result;
@@ -200,7 +284,10 @@ async function startServer() {
     }
 }
 
-startServer();
+// Only start server if this file is run directly (not imported for testing)
+if (require.main === module) {
+    startServer();
+}
 
 // Graceful shutdown handling
 process.on('SIGTERM', gracefulShutdown);
@@ -210,24 +297,20 @@ function gracefulShutdown(signal) {
     console.log(`\nReceived ${signal}. Graceful shutdown starting...`);
     
     if (server) {
-        server.close(() => {
+        server.close(async () => {
             console.log('HTTP server closed.');
-            
-            if (db) {
-                db.close().then(() => {
-                    console.log('MongoDB connection closed.');
-                    process.exit(0);
-                }).catch((err) => {
-                    console.error('Error closing MongoDB:', err);
-                    process.exit(1);
-                });
-            } else {
-                process.exit(0);
-            }
+            await closeDatabaseConnection();
+            process.exit(0);
         });
     } else {
-        process.exit(0);
+        closeDatabaseConnection().then(() => {
+            process.exit(0);
+        }).catch(() => {
+            process.exit(1);
+        });
     }
 }
 
-module.exports = app; 
+// Export app and cleanup function for testing
+module.exports = app;
+module.exports.closeDatabaseConnection = closeDatabaseConnection; 

@@ -12,7 +12,7 @@ describe('Frontend Calendar Tests', () => {
     describe('HTML Structure', () => {
         it('should contain dhtmlxScheduler CDN links', () => {
             expect(indexHtmlContent).toContain('dhtmlxscheduler.js');
-            expect(indexHtmlContent).toContain('dhtmlxscheduler_material.css');
+            expect(indexHtmlContent).toContain('dhtmlxscheduler.css');
         });
 
         it('should have proper calendar container structure', () => {
@@ -92,6 +92,69 @@ describe('Frontend Calendar Tests', () => {
 
         it('should initialize on page load', () => {
             expect(indexHtmlContent).toContain('onload="init();"');
+        });
+    });
+
+    describe('Custom Fields Configuration', () => {
+        it('should configure lightbox sections for custom fields', () => {
+            expect(indexHtmlContent).toContain('scheduler.config.lightbox.sections');
+            expect(indexHtmlContent).toContain('map_to: "location"');
+            expect(indexHtmlContent).toContain('map_to: "priority"');
+            expect(indexHtmlContent).toContain('map_to: "tags"');
+            expect(indexHtmlContent).toContain('map_to: "attendees"');
+            expect(indexHtmlContent).toContain('map_to: "category"');
+        });
+
+        it('should have priority options', () => {
+            expect(indexHtmlContent).toContain('key: "low"');
+            expect(indexHtmlContent).toContain('key: "medium"');
+            expect(indexHtmlContent).toContain('key: "high"');
+            expect(indexHtmlContent).toContain('key: "urgent"');
+        });
+
+        it('should have category options', () => {
+            expect(indexHtmlContent).toContain('key: "meeting"');
+            expect(indexHtmlContent).toContain('key: "task"');
+            expect(indexHtmlContent).toContain('key: "event"');
+            expect(indexHtmlContent).toContain('key: "reminder"');
+            expect(indexHtmlContent).toContain('key: "appointment"');
+        });
+
+        it('should configure custom labels', () => {
+            expect(indexHtmlContent).toContain('section_description = "Description"');
+            expect(indexHtmlContent).toContain('section_location = "Location"');
+            expect(indexHtmlContent).toContain('section_priority = "Priority"');
+            expect(indexHtmlContent).toContain('section_tags = "Tags (comma-separated)"');
+            expect(indexHtmlContent).toContain('section_attendees = "Attendees"');
+            expect(indexHtmlContent).toContain('section_category = "Category"');
+        });
+
+        it('should have custom event rendering', () => {
+            expect(indexHtmlContent).toContain('scheduler.templates.event_text');
+            expect(indexHtmlContent).toContain('event.location');
+            expect(indexHtmlContent).toContain('event.priority');
+            expect(indexHtmlContent).toContain('event.tags');
+        });
+
+        it('should have event class styling', () => {
+            expect(indexHtmlContent).toContain('scheduler.templates.event_class');
+            expect(indexHtmlContent).toContain('priority_');
+            expect(indexHtmlContent).toContain('category_');
+        });
+    });
+
+    describe('Enhanced Styling', () => {
+        it('should have priority-based styling', () => {
+            expect(indexHtmlContent).toContain('.priority_high');
+            expect(indexHtmlContent).toContain('.priority_urgent');
+            expect(indexHtmlContent).toContain('.priority_medium');
+        });
+
+        it('should have category-based styling', () => {
+            expect(indexHtmlContent).toContain('.category_meeting');
+            expect(indexHtmlContent).toContain('.category_task');
+            expect(indexHtmlContent).toContain('.category_reminder');
+            expect(indexHtmlContent).toContain('.category_appointment');
         });
     });
 }); 

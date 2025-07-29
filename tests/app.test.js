@@ -8,8 +8,22 @@ describe('Calendar Application', () => {
         server = app.listen(0, done);
     });
 
-    afterAll((done) => {
-        server.close(done);
+    afterAll(async (done) => {
+        if (server) {
+            server.close(async () => {
+                try {
+                    // Clean up database connections if they exist
+                    if (app.closeDatabaseConnection) {
+                        await app.closeDatabaseConnection();
+                    }
+                } catch (error) {
+                    console.log('Cleanup error (expected in tests):', error.message);
+                }
+                done();
+            });
+        } else {
+            done();
+        }
     });
 
     describe('GET /', () => {
@@ -48,6 +62,31 @@ describe('Calendar Application', () => {
                 expect(event).toHaveProperty('end_date');
                 expect(typeof event.id).toBe('string');
                 expect(typeof event.text).toBe('string');
+            });
+        });
+
+        it('should return enhanced event data with custom fields', async () => {
+            const response = await request(app).get('/data');
+            const events = response.body;
+            
+            // Check that at least one event has the enhanced fields
+            const enhancedEvent = events.find(event => event.location);
+            expect(enhancedEvent).toBeDefined();
+            expect(enhancedEvent).toHaveProperty('location');
+            expect(enhancedEvent).toHaveProperty('priority');
+            expect(enhancedEvent).toHaveProperty('category');
+            expect(enhancedEvent).toHaveProperty('tags');
+            expect(enhancedEvent).toHaveProperty('attendees');
+        });
+
+        it('should return properly formatted date strings', async () => {
+            const response = await request(app).get('/data');
+            const events = response.body;
+            
+            events.forEach(event => {
+                // Dates should be formatted as "YYYY-MM-DD HH:mm"
+                expect(event.start_date).toMatch(/^\d{4}-\d{2}-\d{2} \d{2}:\d{2}$/);
+                expect(event.end_date).toMatch(/^\d{4}-\d{2}-\d{2} \d{2}:\d{2}$/);
             });
         });
     });

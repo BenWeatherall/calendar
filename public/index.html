@@ -33,6 +33,51 @@
             height: calc(100vh - 40px);
             margin-top: 40px;
         }
+        
+        /* Priority-based event styling */
+        .dhx_cal_event.priority_high .dhx_event_move,
+        .dhx_cal_event.priority_high .dhx_event_resize {
+            background-color: #ff9999 !important;
+            border-left: 4px solid #ff4444 !important;
+        }
+        
+        .dhx_cal_event.priority_urgent .dhx_event_move,
+        .dhx_cal_event.priority_urgent .dhx_event_resize {
+            background-color: #ff6666 !important;
+            border-left: 4px solid #cc0000 !important;
+            font-weight: bold !important;
+        }
+        
+        .dhx_cal_event.priority_medium .dhx_event_move,
+        .dhx_cal_event.priority_medium .dhx_event_resize {
+            background-color: #ffcc99 !important;
+            border-left: 4px solid #ff9900 !important;
+        }
+        
+        /* Category-based event styling */
+        .dhx_cal_event.category_meeting .dhx_event_move,
+        .dhx_cal_event.category_meeting .dhx_event_resize {
+            background-color: #b3d9ff !important;
+            border-left: 4px solid #0066cc !important;
+        }
+        
+        .dhx_cal_event.category_task .dhx_event_move,
+        .dhx_cal_event.category_task .dhx_event_resize {
+            background-color: #d9f2d9 !important;
+            border-left: 4px solid #009900 !important;
+        }
+        
+        .dhx_cal_event.category_reminder .dhx_event_move,
+        .dhx_cal_event.category_reminder .dhx_event_resize {
+            background-color: #ffffcc !important;
+            border-left: 4px solid #cccc00 !important;
+        }
+        
+        .dhx_cal_event.category_appointment .dhx_event_move,
+        .dhx_cal_event.category_appointment .dhx_event_resize {
+            background-color: #ffccff !important;
+            border-left: 4px solid #cc00cc !important;
+        }
     </style>
 </head>
 
@@ -65,17 +110,94 @@
                 year_view: true
             });
             
-            // Initialize the scheduler with current date for better visibility
-            const today = new Date();
-            scheduler.init('scheduler_here', today, "month");
+            // Configure custom fields for events
+            scheduler.config.lightbox.sections = [
+                {name: "description", height: 130, map_to: "text", type: "textarea", focus: true},
+                {name: "location", height: 43, map_to: "location", type: "textarea"},
+                {name: "priority", height: 43, map_to: "priority", type: "select", options: [
+                    {key: "low", label: "Low"},
+                    {key: "medium", label: "Medium"}, 
+                    {key: "high", label: "High"},
+                    {key: "urgent", label: "Urgent"}
+                ]},
+                {name: "tags", height: 43, map_to: "tags", type: "textarea"},
+                {name: "attendees", height: 43, map_to: "attendees", type: "textarea"},
+                {name: "category", height: 43, map_to: "category", type: "select", options: [
+                    {key: "meeting", label: "Meeting"},
+                    {key: "task", label: "Task"},
+                    {key: "event", label: "Event"},
+                    {key: "reminder", label: "Reminder"},
+                    {key: "appointment", label: "Appointment"}
+                ]},
+                {name: "time", height: 72, type: "time", map_to: "auto"}
+            ];
+            
+            // Set custom labels for the lightbox
+            scheduler.locale.labels.section_description = "Description";
+            scheduler.locale.labels.section_location = "Location";
+            scheduler.locale.labels.section_priority = "Priority";
+            scheduler.locale.labels.section_tags = "Tags (comma-separated)";
+            scheduler.locale.labels.section_attendees = "Attendees";
+            scheduler.locale.labels.section_category = "Category";
+            scheduler.locale.labels.section_time = "Time";
+            
+            // Custom event rendering to show additional info
+            scheduler.templates.event_text = function(start, end, event) {
+                let html = "<b>" + event.text + "</b>";
+                if (event.location) {
+                    html += "<br/>📍 " + event.location;
+                }
+                if (event.priority && event.priority !== "low") {
+                    const priorityEmoji = {
+                        medium: "🔸",
+                        high: "🔶", 
+                        urgent: "🔴"
+                    };
+                    html += "<br/>" + priorityEmoji[event.priority] + " " + event.priority.charAt(0).toUpperCase() + event.priority.slice(1);
+                }
+                if (event.tags) {
+                    html += "<br/>🏷️ " + event.tags;
+                }
+                return html;
+            };
+            
+            // Color events based on priority or category
+            scheduler.templates.event_class = function(start, end, event) {
+                let css_class = "";
+                
+                // Color by priority
+                if (event.priority) {
+                    css_class += "priority_" + event.priority + " ";
+                }
+                
+                // Color by category
+                if (event.category) {
+                    css_class += "category_" + event.category + " ";
+                }
+                
+                return css_class;
+            };
+            
+            // Configure date format BEFORE initializing scheduler
+            scheduler.config.xml_date = "%Y-%m-%d %H:%i";
+            scheduler.config.api_date = "%Y-%m-%d %H:%i";
             
             // Configure date parsing for incoming data
             scheduler.templates.xml_date = function(value) { 
+                if (typeof value === "string") {
+                    return scheduler.date.str_to_date(scheduler.config.xml_date)(value);
+                }
                 return new Date(value); 
             };
             
-            // Configure date format for outgoing data  
-            scheduler.config.xml_date = "%Y-%m-%d %H:%i";
+            // Configure date formatting for outgoing data
+            scheduler.templates.format_date = function(date) {
+                return scheduler.date.date_to_str(scheduler.config.xml_date)(date);
+            };
+            
+            // Initialize the scheduler with current date for better visibility
+            const today = new Date();
+            scheduler.init('scheduler_here', today, "month");
             
             // Enable creation of new events by double click
             scheduler.config.details_on_create = true;
