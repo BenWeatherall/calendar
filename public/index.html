@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta content="text/html; charset=utf-8">
+    <title>Node.js Calendar with dhtmlxScheduler</title>
+    <!-- Using dhtmlxScheduler from jsDelivr CDN - more reliable alternative -->
+    <script src="https://cdn.jsdelivr.net/npm/dhtmlx-scheduler@7.2.6/codebase/dhtmlxscheduler.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/dhtmlx-scheduler@7.2.6/codebase/dhtmlxscheduler.css">
+    
+    <style type="text/css" media="screen">
+        html, body {
+            margin: 0px;
+            padding: 0px;
+            height: 100%;
+            overflow: hidden;
+            font-family: Arial, sans-serif;
+        }
+        
+        .dhx_cal_container {
+            border: 1px solid #cecece;
+        }
+        
+        .header-info {
+            background: #f4f4f4;
+            padding: 10px;
+            text-align: center;
+            border-bottom: 1px solid #cecece;
+            font-size: 14px;
+            color: #666;
+        }
+        
+        #calendar-container {
+            height: calc(100vh - 40px);
+            margin-top: 40px;
+        }
+    </style>
+</head>
+
+<body onload="init();">
+    <div class="header-info">
+        Node.js Calendar with dhtmlxScheduler - Click to add events, drag to modify
+    </div>
+    
+    <div id="calendar-container">
+        <div id="scheduler_here" class="dhx_cal_container" style='width:100%; height:100%;'>
+            <div class="dhx_cal_navline">
+                <div class="dhx_cal_prev_button">&nbsp;</div>
+                <div class="dhx_cal_next_button">&nbsp;</div>
+                <div class="dhx_cal_today_button"></div>
+                <div class="dhx_cal_date"></div>
+                <div class="dhx_cal_tab" name="day_tab"></div>
+                <div class="dhx_cal_tab" name="week_tab"></div>
+                <div class="dhx_cal_tab" name="month_tab"></div>
+            </div>
+            <div class="dhx_cal_header"></div>
+            <div class="dhx_cal_data"></div>
+        </div>
+    </div>
+
+    <script type="text/javascript" charset="utf-8">
+        function init() {
+            // Initialize the scheduler with current date for better visibility
+            const today = new Date();
+            scheduler.init('scheduler_here', today, "month");
+            
+            // Configure date parsing for incoming data
+            scheduler.templates.xml_date = function(value) { 
+                return new Date(value); 
+            };
+            
+            // Configure date format for outgoing data  
+            scheduler.config.xml_date = "%Y-%m-%d %H:%i";
+            
+            // Enable creation of new events by double click
+            scheduler.config.details_on_create = true;
+            scheduler.config.details_on_dblclick = true;
+            
+            // Load data from the server
+            scheduler.load("/data", "json");
+            
+            // Modern way to handle data processing in dhtmlxScheduler
+            scheduler.createDataProcessor({
+                url: "/data",
+                mode: "POST"
+            });
+            
+            // Alternative fallback for older versions
+            if (typeof dataProcessor !== 'undefined') {
+                var dp = new dataProcessor("/data");
+                dp.init(scheduler);
+                dp.setTransactionMode("POST", false);
+            }
+            
+            console.log("Calendar initialized successfully");
+        }
+    </script>
+</body>
+</html> 
