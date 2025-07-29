@@ -33,28 +33,6 @@
             height: calc(100vh - 40px);
             margin-top: 40px;
         }
-        
-        /* Mini calendar icon - inherits dhx_cal_tab styling with custom icon */
-        .dhx_cal_tab.minical-icon {
-            position: relative;
-            min-width: auto !important;
-            width: auto !important;
-            padding: 0 8px !important;
-            color: var(--dhx-scheduler-btn-color, #537CFA);
-        }
-        
-        .dhx_cal_tab.minical-icon::before {
-            content: "";
-            display: inline-block;
-            width: 16px;
-            height: 16px;
-            /* Improved calendar icon with better details - blue outline, white background, blue grid */
-            background-image: url("data:image/svg+xml,%3Csvg width='16' height='16' viewBox='0 0 16 16' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Crect x='2' y='3' width='12' height='11' rx='1' fill='white' stroke='%23537CFA' stroke-width='1.2'/%3E%3Crect x='4' y='1' width='1.5' height='3' rx='0.5' fill='%23537CFA'/%3E%3Crect x='10.5' y='1' width='1.5' height='3' rx='0.5' fill='%23537CFA'/%3E%3Cline x1='2' y1='6' x2='14' y2='6' stroke='%23537CFA' stroke-width='0.8'/%3E%3Ccircle cx='5' cy='8.5' r='0.8' fill='%23537CFA'/%3E%3Ccircle cx='8' cy='8.5' r='0.8' fill='%23537CFA'/%3E%3Ccircle cx='11' cy='8.5' r='0.8' fill='%23537CFA'/%3E%3Ccircle cx='5' cy='11.5' r='0.8' fill='%23537CFA'/%3E%3Ccircle cx='8' cy='11.5' r='0.8' fill='%23537CFA'/%3E%3C/svg%3E");
-            background-repeat: no-repeat;
-            background-position: center;
-            background-size: 16px 16px;
-            vertical-align: middle;
-        }
     </style>
 </head>
 
@@ -70,10 +48,10 @@
                 <div class="dhx_cal_next_button">&nbsp;</div>
                 <div class="dhx_cal_today_button"></div>
                 <div class="dhx_cal_date"></div>
-                <div class="dhx_cal_tab minical-icon" id="dhx_minical_icon" onclick="show_minical()" title="Jump to specific year/month"></div>
                 <div class="dhx_cal_tab" name="day_tab"></div>
                 <div class="dhx_cal_tab" name="week_tab"></div>
                 <div class="dhx_cal_tab" name="month_tab"></div>
+                <div class="dhx_cal_tab" name="year_tab"></div>
             </div>
             <div class="dhx_cal_header"></div>
             <div class="dhx_cal_data"></div>
@@ -84,7 +62,7 @@
         function init() {
             // Enable mini calendar extension
             scheduler.plugins({
-                minical: true
+                year_view: true
             });
             
             // Initialize the scheduler with current date for better visibility
@@ -120,22 +98,6 @@
             }
             
             console.log("Calendar initialized successfully");
-        }
-        
-        function show_minical() {
-            if (scheduler.isCalendarVisible()) {
-                scheduler.destroyCalendar();
-            } else {
-                scheduler.renderCalendar({
-                    position: "dhx_minical_icon",
-                    date: scheduler._date,
-                    navigation: true,
-                    handler: function(date, calendar) {
-                        scheduler.setCurrentView(date);
-                        scheduler.destroyCalendar();
-                    }
-                });
-            }
         }
     </script>
 </body>
